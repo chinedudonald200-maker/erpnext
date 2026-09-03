@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - StarPlus International School</title>
+    <link rel="icon" class="logo1" href="Star Plus Logo2 modified.png" />
+    <link rel="stylesheet" href="login page.css" />
+  </head>
+  <body>
+    <div class="auth-container">
+      <!-- Left Side Panel with Branding -->
+      <div class="auth-panel-left">
+        <div class="auth-branding">
+          <img
+            src="Star Plus Logo2 modified.png"
+            alt=""
+            id="stp"
+            data-image-key="images.logo"
+          />
+          <h1 data-content-key="login.brandTitle">
+            StarPlus International School
+          </h1>
+          <p data-content-key="login.brandSubtitle">
+            Motto: Learning Through Fun
+          </p>
+        </div>
+        <div class="auth-features">
+          <div class="auth-feature">
+            <span class="feature-icon">🎓</span>
+            <h3>Quality Education</h3>
+            <p>Nurturing minds and building bright futures since 1999</p>
+          </div>
+          <div class="auth-feature">
+            <span class="feature-icon">🚀</span>
+            <h3>Modern Technology</h3>
+            <p>AI-powered learning and digital innovation</p>
+          </div>
+          <div class="auth-feature">
+            <span class="feature-icon">🏆</span>
+            <h3>Excellence</h3>
+            <p>Top-rated school with proven track record</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side Form Panel -->
+      <div class="auth-panel-right">
+        <div class="auth-wrapper">
+          <!-- Login Form -->
+          <div class="auth-form-container active" id="loginFormContainer">
+            <h2 data-content-key="login.welcomeHeading">Super Admin Login</h2>
+            <p class="form-subtitle">Sign in to your account</p>
+
+            <form id="loginForm">
+              <!-- Error Notification Box -->
+              <div
+                id="errorMessage"
+                class="error-banner"
+                style="
+                  display: none;
+                  color: #e74c3c;
+                  margin-bottom: 10px;
+                  font-weight: bold;
+                "
+              ></div>
+
+              <div class="form-group">
+                <label for="identifier"
+                  >Email Address or Registration Number</label
+                >
+                <input
+                  type="text"
+                  id="identifier"
+                  placeholder="Emeka12@gmail.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                  <input type="password" id="password" required />
+                </div>
+              </div>
+
+              <div class="form-options">
+                <label
+                  ><input type="checkbox" id="rememberMe" /> Remember me</label
+                >
+              </div>
+
+              <button type="submit" class="auth-button">SIGN IN</button>
+            </form>
+          </div>
+
+          <!-- Signup Form -->
+          <div class="auth-form-container" id="signupForm">
+            <h2>Create Account</h2>
+            <p class="form-subtitle">Join our school community</p>
+
+            <form class="auth-form" id="signupFormElement">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="signup-firstname">First Name</label>
+                  <input
+                    type="text"
+                    id="signup-firstname"
+                    placeholder="John"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="signup-lastname">Last Name</label>
+                  <input
+                    type="text"
+                    id="signup-lastname"
+                    placeholder="Doe"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input
+                  type="email"
+                  id="signup-email"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="signup-role">Account Type</label>
+                <select id="signup-role" required>
+                  <option value="">Select account type</option>
+                  <option value="student">Student</option>
+                  <option value="parent">Parent/Guardian</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="staff">Staff Member</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="signup-class">Class/Department</label>
+                <input
+                  type="text"
+                  id="signup-class"
+                  placeholder="e.g., Primary 5A"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="signup-password">Password</label>
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="signup-password"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="toggleSignupPassword()"
+                  >
+                    👁️
+                  </button>
+                </div>
+                <div class="password-strength">
+                  <div class="strength-meter"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="signup-confirm">Confirm Password</label>
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="signup-confirm"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="toggleConfirmPassword()"
+                  >
+                    👁️
+                  </button>
+                </div>
+              </div>
+
+              <label class="terms-checkbox">
+                <input type="checkbox" name="terms" required />
+                I agree to the <a href="#">Terms of Service</a> and
+                <a href="#">Privacy Policy</a>
+              </label>
+
+              <button type="submit" class="auth-button">Create Account</button>
+            </form>
+
+            <div class="form-footer">
+              <p>
+                Already have an account?
+                <a href="index.html" onclick="switchToLogin()">Sign in here</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back to Home Link -->
+        <div class="auth-home-link"></div>
+      </div>
+    </div>
+
+    <script>
+      sessionStorage.removeItem("isAdminLoggedIn");
+      function switchToSignup() {
+        document
+          .getElementById("loginFormContainer")
+          .classList.remove("active");
+        document.getElementById("signupForm").classList.add("active");
+      }
+
+      function switchToLogin() {
+        document.getElementById("signupForm").classList.remove("active");
+        document.getElementById("loginFormContainer").classList.add("active");
+      }
+
+      function toggleSignupPassword() {
+        const input = document.getElementById("signup-password");
+        input.type = input.type === "password" ? "text" : "password";
+      }
+
+      function toggleConfirmPassword() {
+        const input = document.getElementById("signup-confirm");
+        input.type = input.type === "password" ? "text" : "password";
+      }
+
+      // Authentication Handler
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const identifier = document.getElementById("identifier").value.trim();
+          const password = document.getElementById("password").value;
+          const errBox = document.getElementById("errorMessage");
+
+          // Accepted Super Admin Credentials
+          const validIdentifier = "admin@starplus.com";
+          const validPassword = "admin123";
+
+          if (identifier === validIdentifier && password === validPassword) {
+            // Store temporary session key (cleared automatically on tab exit)
+            sessionStorage.setItem("isAdminLoggedIn", "true");
+            window.location.href = "admin.html";
+          } else {
+            if (errBox) {
+              errBox.textContent =
+                "Invalid login credentials! Please try again.";
+              errBox.style.display = "block";
+            } else {
+              alert("Invalid login credentials!");
+            }
+          }
+        });
+    </script>
+    <script src="login page.js"></script>
+  </body>
+</html>

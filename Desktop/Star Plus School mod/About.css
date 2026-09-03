@@ -1,0 +1,464 @@
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+.body {
+  position: relative;
+  display: flex;
+  gap: 10px;
+}
+
+.video-container {
+  position: relative;
+  height: 110vh;
+  overflow: hidden;
+  padding: 0%;
+  border: none;
+  width: 150%;
+}
+
+.bg-video {
+  position: absolute;
+  top: 30%;
+  left: 33%;
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  border-radius: 500px;
+}
+
+.bg-video2 {
+  position: absolute;
+  top: 30%;
+  left: 33%;
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  /* border-radius: 50px; */
+}
+
+.secondvid {
+  position: relative;
+  display: block;
+  top: -140px;
+  background-color: aliceblue;
+  z-index: -2;
+  width: clamp(750px, 200vw, 500px);
+  height: clamp(20em, 200vh, 600px);
+  margin-left: 20px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.firstpic {
+  position: relative;
+  display: block;
+}
+
+.pic1 {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 20%;
+  transform: scale(2);
+  left: 200px;
+  opacity: 0.1;
+  z-index: -3;
+}
+
+.pic2 {
+  /* z-index: 999; */
+  position: relative;
+  width: 60%;
+  height: 20%;
+  top: -770px;
+  left: 155px;
+  border-radius: 90px;
+  box-shadow: 2px 2px 20px rgba(44, 111, 154, 0.582);
+  transition: transform 0.3s ease;
+  pointer-events: auto;
+}
+
+.pic2:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.Securet {
+  position: relative;
+  display: block;
+  top: -750px;
+  left: 30px;
+  color: rgb(255, 140, 0);
+}
+
+.Secure-text {
+  position: relative;
+  display: block;
+  left: 30px;
+  top: -750px;
+  font-size: 15px;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  text-align: left;
+  width: 90%;
+}
+
+.cbt {
+  position: relative;
+  top: -700px;
+  left: 30px;
+  font-size: 200px;
+}
+
+.computer {
+  position: relative;
+  width: 19em;
+  color: aliceblue;
+  background-color: rgb(224, 68, 3);
+  top: -870px;
+  left: 50px;
+  padding-left: 20px;
+  padding: 10px;
+}
+
+.virtual {
+  color: navy;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-align: center;
+  top: 40%;
+}
+
+.Div1 {
+  left: 10px;
+  top: 70px;
+  position: relative;
+  width: clamp(800px, 200vw, 500px);
+  height: clamp(350em, 200vh, 100px);
+  border-radius: 15px;
+  background-color: rgba(236, 240, 177, 0.432);
+  /* border: 2px solid black; */
+  z-index: 0;
+  overflow: hidden;
+}
+
+.text1 {
+  position: absolute;
+  display: inline;
+  margin-top: -270px;
+  font-size: 15px;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  text-align: left;
+  transform: scale(0.9);
+}
+
+.lin {
+  animation: slideIn 3s ease infinite alternate;
+  top: -200px;
+  position: relative;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  width: clamp(300px, 50% + 2em, 450px);
+}
+
+.about-hero {
+  min-height: 30vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  margin-top: 100px;
+  /* display: none; */
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+.line {
+  animation: out 3s ease infinite alternate;
+  top: -280px;
+  position: relative;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  width: clamp(300px, 50% + 2em, 450px);
+}
+
+@keyframes out {
+  from {
+    transform: translateX(50%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.Div2 {
+  left: 10px;
+  top: 70px;
+  position: relative;
+  width: clamp(200px, 100vw, 430px);
+  height: 350rem;
+  border-radius: 15px;
+  background-color: rgba(236, 240, 177, 0.432);
+  /* border: 2px solid black; */
+  z-index: -1;
+  display: flex;
+  justify-content: center;
+}
+
+.seconddiv {
+  position: relative;
+  top: 20px;
+  border-radius: 20px;
+  height: 500px;
+  width: 400px;
+  background-color: white;
+  overflow: hidden;
+}
+
+.seconddiv::before {
+  content: "";
+  background-color: red;
+  position: absolute;
+  top: -300px;
+  height: 50vh;
+  width: 400px;
+}
+
+.btn1 {
+  display: flex;
+  position: relative;
+  top: -180px;
+  left: 40px;
+  text-decoration: none;
+}
+
+.cbtall {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cbtp {
+  position: relative;
+  background: url("pjt3.jpg");
+  background-size: cover;
+  width: 30em;
+  height: 220px;
+  left: 16px;
+  top: 13px;
+  border: 5px solid white;
+}
+
+.cbtp1 {
+  position: relative;
+  background: url("pjt4.jpg");
+  background-size: cover;
+  width: 90em;
+  height: 220px;
+  left: 395px;
+  top: 13px;
+  border: 5px solid white;
+}
+
+.cbtt {
+  position: relative;
+  color: aliceblue;
+  left: 60px;
+  top: -20px;
+  width: clamp(600px, 50%, 550px);
+}
+
+.online {
+  display: block;
+  position: relative;
+  text-decoration: 1px solid underline;
+  text-underline-offset: 3px;
+}
+
+.offline {
+  left: -300px;
+  color: white;
+  display: block;
+  position: relative;
+  text-decoration: 1px solid underline;
+  text-underline-offset: 3px;
+}
+
+.cbtt-text {
+  position: relative;
+  font-size: 10px;
+  text-decoration: none;
+  top: -15px;
+  left: -10px;
+  text-align: justify;
+  width: 80%;
+}
+
+.cbtt-text1 {
+  color: white;
+  position: relative;
+  font-size: 10px;
+  text-decoration: none;
+  top: -15px;
+  left: -300px;
+  text-align: justify;
+  width: 80%;
+}
+
+.bt {
+  color: yellow;
+}
+
+.cbtt-text2 {
+  position: relative;
+  font-size: 10px;
+  text-decoration: none;
+  top: -15px;
+  left: -10px;
+  text-align: justify;
+  width: 80%;
+  word-spacing: -1px;
+}
+
+.cbtt-text22 {
+  color: white;
+  position: relative;
+  font-size: 10px;
+  text-decoration: none;
+  top: -15px;
+  left: -300px;
+  text-align: justify;
+  width: 80%;
+  word-spacing: -1px;
+}
+
+.line1 {
+  position: relative;
+  background-color: antiquewhite;
+  width: 1px;
+  height: 170px;
+  left: 40px;
+  top: 45px;
+  opacity: 0.6;
+}
+
+.line12 {
+  position: relative;
+  background-color: antiquewhite;
+  width: 1px;
+  height: 170px;
+  left: 40px;
+  top: 45px;
+  opacity: 0.6;
+}
+
+.cbtonline {
+  position: relative;
+  background-color: black;
+  width: 47em;
+  height: 16em;
+  display: flex;
+  top: -870px;
+  left: 20px;
+  opacity: 0.6;
+  border-radius: 7px;
+}
+
+.cbtoffline {
+  position: relative;
+  background-color: black;
+  width: 47em;
+  height: 16em;
+  display: flex;
+  top: -870px;
+  left: 20px;
+  opacity: 0.6;
+  border-radius: 7px;
+}
+
+.pic3 {
+  position: relative;
+  background-color: aquamarine;
+  position: relative;
+  width: 90%;
+  height: 20%;
+  top: -650px;
+  left: 35.5px;
+  /* border-radius: 90px; */
+  /* box-shadow: 2px 2px 20px rgba(44, 111, 154, 0.582); */
+}
+
+.Attend {
+  animation: bounce 9s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.Attendt {
+  color: white;
+  position: absolute;
+  top: -134%;
+  left: 4.4%;
+  width: 12em;
+  padding-left: 10px;
+  background-color: rgba(6, 91, 33, 0.774);
+  opacity: 0.8;
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
+
+.Attend-text {
+  opacity: 0.8;
+  color: white;
+  position: relative;
+  display: block;
+  top: -758px;
+  left: 35.5px;
+  width: 87.5%;
+  padding: 10px;
+  font-size: 15px;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  text-align: left;
+  background-color: rgb(40, 79, 4);
+}
