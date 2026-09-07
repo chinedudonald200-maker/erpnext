@@ -1,9 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
-  renderDynamicContent();
+document.addEventListener("DOMContentLoaded", async () => {
+  await renderDynamicContent();
 });
 
-function renderDynamicContent() {
-  const data = typeof getSiteData === "function" ? getSiteData() : null;
+async function renderDynamicContent() {
+  const data = typeof getSiteData === "function" ? await getSiteData() : null;
   if (!data) return;
 
   // ==========================================
@@ -90,7 +90,6 @@ function renderDynamicContent() {
   // 2. ADMISSION PAGE (Admission.html)
   // ==========================================
 
-  // Admission Requirements
   const reqContainer =
     document.getElementById("requirements-container") ||
     document.querySelector(".requirements-grid");
@@ -112,7 +111,6 @@ function renderDynamicContent() {
       .join("");
   }
 
-  // Admission Steps
   const stepsContainer =
     document.getElementById("steps-container") ||
     document.querySelector(".timeline");
@@ -136,7 +134,6 @@ function renderDynamicContent() {
       .join("");
   }
 
-  // Available Classes
   const classContainer =
     document.getElementById("classes-container") ||
     document.querySelector(".class-levels-grid");
@@ -161,7 +158,6 @@ function renderDynamicContent() {
       .join("");
   }
 
-  // FAQs (Preserves Accordion Structure)
   const faqContainer =
     document.getElementById("faq-container") ||
     document.querySelector(".faq-container");
@@ -231,7 +227,6 @@ function renderDynamicContent() {
     );
   }
 
-  // News Articles
   const newsContainer = document.querySelector(".news-articles-container");
   if (
     newsContainer &&
@@ -267,10 +262,7 @@ function renderDynamicCalendar(eventsList, calendarTitle) {
 
   if (!calendarGrid || !eventsList) return;
 
-  const highlightedDays = eventsList.map((e) => {
-    const d = new Date(e.date);
-    return d.getDate();
-  });
+  const highlightedDays = eventsList.map((e) => new Date(e.date).getDate());
 
   let daysHTML = `
     <div class="weekday">Sun</div>

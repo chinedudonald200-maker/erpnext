@@ -140,19 +140,15 @@ function renderEducators() {
   container.innerHTML = educators
     .map(
       (edu) => `
-    <div class="teacher-card">
-      <div class="teacher-image">
-        <img src="${edu.image || "Italian.jpg"}" alt="${edu.name}" class="Ita" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" />
-      </div>
-      <h3 class="teacher-name">${edu.name}</h3>
-      <p class="teacher-subject">${edu.position}</p>
-      <p class="teacher-bio">${edu.bio}</p>
-      <div class="teacher-social">
-        ${edu.email ? `<a href="mailto:${edu.email}">📧</a>` : `<a href="#">📧</a>`}
-        ${edu.phone ? `<a href="tel:${edu.phone}">🔗</a>` : `<a href="#">🔗</a>`}
-      </div>
-    </div>
-  `,
+<div class="teacher-card">
+  <div class="teacher-image">
+    <img src="${teacher.image || "default-avatar.png"}" alt="${teacher.name}">
+  </div>
+  <h3 class="teacher-name">${teacher.name}</h3>
+  <p class="teacher-subject">${teacher.subject}</p>
+  <p class="teacher-bio">${teacher.bio}</p>
+</div>
+`,
     )
     .join("");
 }

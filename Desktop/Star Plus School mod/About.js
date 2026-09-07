@@ -1,215 +1,147 @@
-// ==========================================
-// 1. CLOUD DATA FETCHING & DYNAMIC RENDERING
-// ==========================================
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const siteData = await getSiteData();
-    const aboutData = siteData.about;
+// Hamburger Menu Toggle, this is for the hamburger toggle for small screens
+const hamburger = document.getElementById("hamburger");
+const navTabs = document.getElementById("navTabs");
 
-    if (aboutData) {
-      // Populate Hero Section
-      const heroTitle = document.querySelector(
-        '[data-content-key="about.heroTitle"]',
-      );
-      const heroText = document.querySelector(
-        '[data-content-key="about.heroText"]',
-      );
-      if (heroTitle && aboutData.hero?.title)
-        heroTitle.textContent = aboutData.hero.title;
-      if (heroText && aboutData.hero?.subtitle)
-        heroText.textContent = aboutData.hero.subtitle;
+if (hamburger) {
+  hamburger.addEventListener("click", () => {
+    hamburger.classList.toggle("active");
+    navTabs.classList.toggle("active");
+  });
 
-      // Populate Journey / History Section
-      const historyContainer = document.querySelector(".history-container");
-      if (historyContainer && aboutData.journey) {
-        historyContainer.innerHTML = aboutData.journey
-          .map(
-            (item) => `
-          <div class="history-item">
-            <div class="history-year">${item.year}</div>
-            <h3>${item.title}</h3>
-            <p>${item.description}</p>
-          </div>
-        `,
-          )
-          .join("");
-      }
+  // Close menu when a link is clicked
+  const navLinks = navTabs.querySelectorAll("a");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      hamburger.classList.remove("active");
+      navTabs.classList.remove("active");
+    });
+  });
+}
 
-      // Populate Core Values Section
-      const valuesGrid = document.querySelector(".values-grid");
-      if (valuesGrid && aboutData.coreValues) {
-        valuesGrid.innerHTML = aboutData.coreValues
-          .map(
-            (val) => `
-          <div class="value-card">
-            <div class="value-icon">${val.icon || "🎯"}</div>
-            <h3>${val.title}</h3>
-            <p>${val.description}</p>
-          </div>
-        `,
-          )
-          .join("");
-      }
+// Back to Top Button, the button that will take the page to the Hero page
+const backToTopBtn = document.getElementById("backToTop");
 
-      // Populate Recognitions & Accreditations Section
-      const awardsContainer = document.querySelector(".awards-container");
-      if (awardsContainer && aboutData.recognitions) {
-        awardsContainer.innerHTML = aboutData.recognitions
-          .map(
-            (rec) => `
-          <div class="award-card">
-            <div class="award-icon">${rec.icon || "🏆"}</div>
-            <h3>${rec.title}</h3>
-            <p>${rec.body || rec.description}</p>
-          </div>
-        `,
-          )
-          .join("");
-      }
-
-      // Populate Leadership Section
-      const leadershipGrid = document.querySelector(".leadership-grid");
-      if (leadershipGrid && aboutData.leadership) {
-        leadershipGrid.innerHTML = aboutData.leadership
-          .map(
-            (leader) => `
-          <div class="leader-card">
-            <div class="leader-image">${leader.image ? `<img src="${leader.image}" alt="${leader.name}">` : "👨‍💼"}</div>
-            <h3>${leader.name}</h3>
-            <p class="leader-title">${leader.title}</p>
-            <p class="leader-bio">${leader.bio}</p>
-          </div>
-        `,
-          )
-          .join("");
-      }
-
-      // Populate Facilities Showcase Section
-      const facilitiesGrid = document.querySelector(".facilities-grid");
-      if (facilitiesGrid && aboutData.facilities) {
-        facilitiesGrid.innerHTML = aboutData.facilities
-          .map(
-            (facility) => `
-          <div class="facility-showcase">
-            <div class="facility-img">🏫</div>
-            <h3>${facility.name}</h3>
-            <p>${facility.description}</p>
-          </div>
-        `,
-          )
-          .join("");
-      }
+if (backToTopBtn) {
+  window.addEventListener("scroll", () => {
+    if (window.pageYOffset > 300) {
+      backToTopBtn.style.display = "block";
+    } else {
+      backToTopBtn.style.display = "none";
     }
-  } catch (error) {
-    console.error("Error loading About page data from cloud:", error);
-  }
+  });
 
-  // Initialize UI interactions and observers after content injection
-  initUIInteractions();
-  console.log("About page loaded successfully");
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+// Smooth scroll for internal links
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
+    const href = this.getAttribute("href");
+    if (href !== "#" && document.querySelector(href)) {
+      e.preventDefault();
+      document.querySelector(href).scrollIntoView({ behavior: "smooth" });
+    }
+  });
 });
 
-// ==========================================
-// 2. UI INTERACTIONS & ANIMATIONS
-// ==========================================
-function initUIInteractions() {
-  // Hamburger Menu Toggle
-  const hamburger = document.getElementById("hamburger");
-  const navTabs = document.getElementById("navTabs");
+// History Timeline Animation
+const historyItems = document.querySelectorAll(".history-item");
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: "0px 0px -50px 0px",
+};
 
-  if (hamburger && navTabs) {
-    hamburger.addEventListener("click", () => {
-      hamburger.classList.toggle("active");
-      navTabs.classList.toggle("active");
-    });
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.style.animation = "slideUp 0.6s ease forwards";
+      observer.unobserve(entry.target);
+    }
+  });
+}, observerOptions);
 
-    const navLinks = navTabs.querySelectorAll("a");
-    navLinks.forEach((link) => {
-      link.addEventListener("click", () => {
-        hamburger.classList.remove("active");
-        navTabs.classList.remove("active");
-      });
-    });
-  }
+historyItems.forEach((item, index) => {
+  item.style.opacity = "0";
+  item.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(item);
+});
 
-  // Back to Top Button
-  const backToTopBtn = document.getElementById("backToTop");
-  if (backToTopBtn) {
-    window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 300) {
-        backToTopBtn.style.display = "block";
-      } else {
-        backToTopBtn.style.display = "none";
-      }
-    });
+// Value Cards Animation
+const valueCards = document.querySelectorAll(".value-card");
+valueCards.forEach((card, index) => {
+  card.style.opacity = "0";
+  card.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(card);
+});
 
-    backToTopBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
+// Feature Items Animation with Hover Effect
+const featureItems = document.querySelectorAll(".feature-item");
+featureItems.forEach((item, index) => {
+  item.style.opacity = "0";
+  item.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(item);
 
-  // Smooth scroll for internal links
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      const href = this.getAttribute("href");
-      if (href !== "#" && document.querySelector(href)) {
-        e.preventDefault();
-        document.querySelector(href).scrollIntoView({ behavior: "smooth" });
-      }
-    });
+  // Hover effect
+  item.addEventListener("mouseenter", function () {
+    this.style.transform = "translateY(-10px)";
+    this.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.2)";
   });
 
-  // Intersection Observer for Animations
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px",
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.style.animation = "slideUp 0.6s ease forwards";
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  const animatedElements = document.querySelectorAll(
-    ".history-item, .value-card, .feature-item, .award-card, .leader-card, .facility-showcase",
-  );
-
-  animatedElements.forEach((item, index) => {
-    item.style.opacity = "0";
-    item.style.animationDelay = `${index * 0.1}s`;
-    observer.observe(item);
+  item.addEventListener("mouseleave", function () {
+    this.style.transform = "translateY(0)";
+    this.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
   });
+});
 
-  // Newsletter Form Submission
-  const newsletterForm = document.querySelector(".newsletter-form");
-  if (newsletterForm) {
-    newsletterForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const emailInput = newsletterForm.querySelector('input[type="email"]');
-      const email = emailInput ? emailInput.value : "";
+// Award Cards Animation
+const awardCards = document.querySelectorAll(".award-card");
+awardCards.forEach((card, index) => {
+  card.style.opacity = "0";
+  card.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(card);
+});
 
-      if (validateEmail(email)) {
-        const button = newsletterForm.querySelector("button");
-        if (button) {
-          button.textContent = "Subscribed! ✓";
-          button.style.background = "#27ae60";
+// Leadership Cards Animation
+const leaderCards = document.querySelectorAll(".leader-card");
+leaderCards.forEach((card, index) => {
+  card.style.opacity = "0";
+  card.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(card);
+});
 
-          setTimeout(() => {
-            button.textContent = "Subscribe";
-            button.style.background = "";
-            newsletterForm.reset();
-          }, 2000);
-        }
-      } else {
-        alert("Please enter a valid email address");
-      }
-    });
-  }
+// Facility Showcase Animation
+const facilityShowcases = document.querySelectorAll(".facility-showcase");
+facilityShowcases.forEach((item, index) => {
+  item.style.opacity = "0";
+  item.style.animationDelay = `${index * 0.1}s`;
+  observer.observe(item);
+});
+
+// Newsletter Form Submission
+const newsletterForm = document.querySelector(".newsletter-form");
+if (newsletterForm) {
+  newsletterForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = newsletterForm.querySelector('input[type="email"]').value;
+
+    if (validateEmail(email)) {
+      const button = newsletterForm.querySelector("button");
+      button.textContent = "Subscribed! ✓";
+      button.style.background = "#27ae60";
+
+      setTimeout(() => {
+        button.textContent = "Subscribe";
+        button.style.background = "";
+        newsletterForm.reset();
+      }, 2000);
+
+      console.log("Subscribed:", email);
+    } else {
+      alert("Please enter a valid email address");
+    }
+  });
 }
 
 function validateEmail(email) {
@@ -217,9 +149,7 @@ function validateEmail(email) {
   return emailRegex.test(email);
 }
 
-// ==========================================
-// 3. INJECT DYNAMIC CSS STYLES
-// ==========================================
+// Add CSS Animations
 const style = document.createElement("style");
 style.textContent = `
     @keyframes slideUp {
@@ -272,9 +202,51 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ==========================================
-// 4. VIDEO LAZY LOADING
-// ==========================================
+// Counter Animation for stats (if present on page)
+function animateCounters() {
+  const counters = document.querySelectorAll("[data-count]");
+  counters.forEach((counter) => {
+    const target = parseInt(counter.getAttribute("data-count"));
+    let current = 0;
+    const increment = target / 30;
+
+    const updateCounter = () => {
+      current += increment;
+      if (current >= target) {
+        counter.textContent =
+          target + (counter.getAttribute("data-unit") || "");
+      } else {
+        counter.textContent =
+          Math.floor(current) + (counter.getAttribute("data-unit") || "");
+        requestAnimationFrame(updateCounter);
+      }
+    };
+
+    updateCounter();
+  });
+}
+
+// Trigger counter animation when the element is visible
+const statsElements = document.querySelectorAll("[data-count]");
+if (statsElements.length > 0) {
+  const statsObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  statsElements.forEach((el) => {
+    statsObserver.observe(el);
+  });
+}
+
+// Video Lazy Loading
 const videos = document.querySelectorAll("video");
 videos.forEach((video) => {
   if ("IntersectionObserver" in window) {
@@ -289,4 +261,9 @@ videos.forEach((video) => {
     });
     videoObserver.observe(video);
   }
+});
+
+// Initialize page
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("About page loaded successfully");
 });

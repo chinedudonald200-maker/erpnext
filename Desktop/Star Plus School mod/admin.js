@@ -1,8 +1,8 @@
 // ==========================================
 // 1. INITIALIZATION & TAB SWITCHING
 // ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-  renderAdminLists();
+document.addEventListener("DOMContentLoaded", async () => {
+  await renderAdminLists();
   renderSubmittedApplications();
   setupFormHandlers();
 });
@@ -18,16 +18,16 @@ function switchTab(tabId) {
   const targetTab = document.getElementById(tabId);
   if (targetTab) targetTab.classList.add("active");
 
-  if (event && event.currentTarget) {
-    event.currentTarget.classList.add("active");
+  if (window.event && window.event.currentTarget) {
+    window.event.currentTarget.classList.add("active");
   }
 }
 
 // ==========================================
 // 2. ITEM MANAGEMENT (SAVE, DELETE, EDIT)
 // ==========================================
-function saveItem(targetPath, itemData, idInputId, formElement) {
-  const data = getSiteData();
+async function saveItem(targetPath, itemData, idInputId, formElement) {
+  const data = await getSiteData();
   const keys = targetPath.split(".");
 
   if (!data[keys[0]]) data[keys[0]] = {};
@@ -47,26 +47,26 @@ function saveItem(targetPath, itemData, idInputId, formElement) {
     targetArray.push(itemData);
   }
 
-  saveSiteData(data);
+  await saveSiteData(data);
   formElement.reset();
   document.getElementById(idInputId).value = "";
-  renderAdminLists();
+  await renderAdminLists();
 }
 
-function deleteItem(targetPath, id) {
-  const data = getSiteData();
+async function deleteItem(targetPath, id) {
+  const data = await getSiteData();
   const keys = targetPath.split(".");
   if (data[keys[0]] && data[keys[0]][keys[1]]) {
     data[keys[0]][keys[1]] = data[keys[0]][keys[1]].filter(
       (item) => item.id !== id,
     );
-    saveSiteData(data);
-    renderAdminLists();
+    await saveSiteData(data);
+    await renderAdminLists();
   }
 }
 
-function editItem(targetPath, id, fillFormCallback) {
-  const data = getSiteData();
+async function editItem(targetPath, id, fillFormCallback) {
+  const data = await getSiteData();
   const keys = targetPath.split(".");
   if (data[keys[0]] && data[keys[0]][keys[1]]) {
     const item = data[keys[0]][keys[1]].find((i) => i.id === id);
@@ -115,16 +115,29 @@ function deleteApplication(index) {
   renderSubmittedApplications();
 }
 
-function clearAllApplications() {
-  if (confirm("Are you sure you want to clear all form submissions?")) {
-    localStorage.removeItem("admission_applications");
-    renderSubmittedApplications();
-  }
-}
+// ==========================================
+// 4. INTERACTIVE IMAGE CROPPER
+// ==========================================
+let currentCropperImage = null;
+let cropCanvas, ctx, zoomRange;
+let imgX = 0,
+  imgY = 0,
+  scale = 1;
+let isDragging = false;
+let startX, startY;
+const outputSize = 300;
 
-// ==========================================
-// 4. IMAGE COMPRESSOR UTILITY
-// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+  cropCanvas = document.getElementById("cropCanvas");
+  if (cropCanvas) {
+    ctx = cropCanvas.getContext("2d");
+    cropCanvas.width = outputSize;
+    cropCanvas.height = outputSize;
+  }
+  zoomRange = document.getElementById("zoomRange");
+  setupCropperEvents();
+});
+
 function compressAndSetImage(fileInput, targetInputId) {
   const file = fileInput.files[0];
   if (!file) return;
@@ -132,45 +145,89 @@ function compressAndSetImage(fileInput, targetInputId) {
   const reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = function (event) {
-    const img = new Image();
-    img.src = event.target.result;
-    img.onload = function () {
-      const canvas = document.createElement("canvas");
-      const MAX_WIDTH = 300;
-      const MAX_HEIGHT = 300;
-      let width = img.width;
-      let height = img.height;
+    currentCropperImage = new Image();
+    currentCropperImage.src = event.target.result;
+    currentCropperImage.onload = function () {
+      scale = Math.max(
+        outputSize / currentCropperImage.width,
+        outputSize / currentCropperImage.height,
+      );
+      zoomRange.value = scale;
+      imgX = (outputSize - currentCropperImage.width * scale) / 2;
+      imgY = (outputSize - currentCropperImage.height * scale) / 2;
 
-      if (width > height) {
-        if (width > MAX_WIDTH) {
-          height *= MAX_WIDTH / width;
-          width = MAX_WIDTH;
-        }
-      } else {
-        if (height > MAX_HEIGHT) {
-          width *= MAX_HEIGHT / height;
-          height = MAX_HEIGHT;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-      const targetInput = document.getElementById(targetInputId);
-      if (targetInput) targetInput.value = dataUrl;
+      drawCanvasImage();
+      document.getElementById("cropModal").style.display = "flex";
+      document
+        .getElementById("saveCropBtn")
+        .setAttribute("data-target-input", targetInputId);
     };
   };
+}
+
+function drawCanvasImage() {
+  if (!ctx || !currentCropperImage) return;
+  ctx.clearRect(0, 0, outputSize, outputSize);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(outputSize / 2, outputSize / 2, outputSize / 2, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(
+    currentCropperImage,
+    imgX,
+    imgY,
+    currentCropperImage.width * scale,
+    currentCropperImage.height * scale,
+  );
+  ctx.restore();
+}
+
+function setupCropperEvents() {
+  if (!cropCanvas) return;
+
+  cropCanvas.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.clientX - imgX;
+    startY = e.clientY - imgY;
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    imgX = e.clientX - startX;
+    imgY = e.clientY - startY;
+    drawCanvasImage();
+  });
+
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
+
+  if (zoomRange) {
+    zoomRange.addEventListener("input", (e) => {
+      const oldScale = scale;
+      scale = parseFloat(e.target.value);
+      imgX = outputSize / 2 - (outputSize / 2 - imgX) * (scale / oldScale);
+      imgY = outputSize / 2 - (outputSize / 2 - imgY) * (scale / oldScale);
+      drawCanvasImage();
+    });
+  }
+
+  const saveBtn = document.getElementById("saveCropBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const targetId = saveBtn.getAttribute("data-target-input");
+      const croppedDataUrl = cropCanvas.toDataURL("image/jpeg", 0.85);
+      const targetInput = document.getElementById(targetId);
+      if (targetInput) targetInput.value = croppedDataUrl;
+      document.getElementById("cropModal").style.display = "none";
+    });
+  }
 }
 
 // ==========================================
 // 5. FORM SUBMISSION EVENT HANDLERS
 // ==========================================
 function setupFormHandlers() {
-  // Educators Image Compressor
   const eduFile = document.getElementById("edu-file");
   if (eduFile) {
     eduFile.addEventListener("change", function () {
@@ -178,12 +235,11 @@ function setupFormHandlers() {
     });
   }
 
-  // Educators Form
   const eduForm = document.getElementById("form-educators");
   if (eduForm) {
-    eduForm.addEventListener("submit", function (e) {
+    eduForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      saveItem(
+      await saveItem(
         "homepage.educators",
         {
           name: document.getElementById("edu-name").value,
@@ -199,58 +255,54 @@ function setupFormHandlers() {
     });
   }
 
-  // Calendar Header Form
   const calForm = document.getElementById("form-calendar-header");
   if (calForm) {
-    calForm.addEventListener("submit", function (e) {
+    calForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const data = getSiteData();
+      const data = await getSiteData();
       if (!data.newsEvents) data.newsEvents = {};
       data.newsEvents.calendarTitle =
         document.getElementById("cal-heading").value;
-      saveSiteData(data);
+      await saveSiteData(data);
       alert("Calendar Title Updated Successfully!");
     });
   }
 
-  // Hero Banner Form
   const heroForm = document.getElementById("form-hero");
   if (heroForm) {
-    heroForm.addEventListener("submit", function (e) {
+    heroForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const data = getSiteData();
+      const data = await getSiteData();
       if (!data.homepage) data.homepage = {};
       data.homepage.hero = {
         title: document.getElementById("hero-title").value,
         subtitle: document.getElementById("hero-sub").value,
       };
-      saveSiteData(data);
+      await saveSiteData(data);
       alert("Hero banner updated!");
     });
   }
 
-  // Welcome Section Form
   const welcomeForm = document.getElementById("form-welcome");
   if (welcomeForm) {
-    welcomeForm.addEventListener("submit", function (e) {
+    welcomeForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const data = getSiteData();
+      const data = await getSiteData();
       if (!data.homepage) data.homepage = {};
       data.homepage.welcomeSection = {
         heading: document.getElementById("wel-head").value,
         body: document.getElementById("wel-body").value,
       };
-      saveSiteData(data);
+      await saveSiteData(data);
       alert("Welcome section updated!");
     });
   }
 
-  // Testimonials Form
   const testForm = document.getElementById("form-testimonials");
   if (testForm) {
-    testForm.addEventListener("submit", function (e) {
+    testForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      saveItem(
+      await saveItem(
         "homepage.testimonials",
         {
           author: document.getElementById("tst-author").value,
@@ -262,255 +314,13 @@ function setupFormHandlers() {
       );
     });
   }
-
-  // About Page Forms
-  const journeyForm = document.getElementById("form-journey");
-  if (journeyForm) {
-    journeyForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "about.journey",
-        {
-          year: document.getElementById("jny-year").value,
-          title: document.getElementById("jny-title").value,
-          description: document.getElementById("jny-desc").value,
-        },
-        "jny-id",
-        this,
-      );
-    });
-  }
-
-  const valuesForm = document.getElementById("form-values");
-  if (valuesForm) {
-    valuesForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "about.coreValues",
-        {
-          title: document.getElementById("val-title").value,
-          description: document.getElementById("val-desc").value,
-        },
-        "val-id",
-        this,
-      );
-    });
-  }
-
-  const recForm = document.getElementById("form-recognitions");
-  if (recForm) {
-    recForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "about.recognitions",
-        {
-          title: document.getElementById("rec-title").value,
-          body: document.getElementById("rec-body").value,
-          icon: document.getElementById("rec-icon").value,
-        },
-        "rec-id",
-        this,
-      );
-    });
-  }
-
-  const ldrForm = document.getElementById("form-leadership");
-  if (ldrForm) {
-    ldrForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "about.leadership",
-        {
-          name: document.getElementById("ldr-name").value,
-          title: document.getElementById("ldr-title").value,
-          bio: document.getElementById("ldr-bio").value,
-          image: document.getElementById("ldr-image").value,
-        },
-        "ldr-id",
-        this,
-      );
-    });
-  }
-
-  const facForm = document.getElementById("form-facilities");
-  if (facForm) {
-    facForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "about.facilities",
-        {
-          name: document.getElementById("fac-name").value,
-          description: document.getElementById("fac-desc").value,
-          image: document.getElementById("fac-image").value,
-        },
-        "fac-id",
-        this,
-      );
-    });
-  }
-
-  // Admission Page Forms
-  const reqForm = document.getElementById("form-requirements");
-  if (reqForm) {
-    reqForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "admission.requirements",
-        {
-          category: document.getElementById("req-cat").value,
-          details: document.getElementById("req-details").value,
-        },
-        "req-id",
-        this,
-      );
-    });
-  }
-
-  const stpForm = document.getElementById("form-steps");
-  if (stpForm) {
-    stpForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "admission.steps",
-        {
-          stepNumber: document.getElementById("stp-num").value,
-          title: document.getElementById("stp-title").value,
-          description: document.getElementById("stp-desc").value,
-        },
-        "stp-id",
-        this,
-      );
-    });
-  }
-
-  const clsForm = document.getElementById("form-classes");
-  if (clsForm) {
-    clsForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "admission.availableClasses",
-        {
-          className: document.getElementById("cls-name").value,
-          ageGroup: document.getElementById("cls-age").value,
-          capacity: document.getElementById("cls-capacity").value,
-        },
-        "cls-id",
-        this,
-      );
-    });
-  }
-
-  const faqForm = document.getElementById("form-faqs");
-  if (faqForm) {
-    faqForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "admission.faqs",
-        {
-          question: document.getElementById("faq-q").value,
-          answer: document.getElementById("faq-a").value,
-        },
-        "faq-id",
-        this,
-      );
-    });
-  }
-
-  const noticeForm = document.getElementById("form-notice");
-  if (noticeForm) {
-    noticeForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const data = getSiteData();
-      if (!data.admission) data.admission = {};
-      data.admission.formNotice = {
-        title: document.getElementById("ntc-title").value,
-        note: document.getElementById("ntc-note").value,
-      };
-      saveSiteData(data);
-      alert("Notice settings updated!");
-    });
-  }
-
-  // Digital Assets Form
-  const inoForm = document.getElementById("form-innovations");
-  if (inoForm) {
-    inoForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "digitalAssets.innovations",
-        {
-          title: document.getElementById("ino-title").value,
-          category: document.getElementById("ino-cat").value,
-          description: document.getElementById("ino-desc").value,
-          image: document.getElementById("ino-image").value,
-        },
-        "ino-id",
-        this,
-      );
-    });
-  }
-
-  // News & Events Forms
-  const evtForm = document.getElementById("form-events");
-  if (evtForm) {
-    evtForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "newsEvents.upcomingEvents",
-        {
-          title: document.getElementById("evt-title").value,
-          date: document.getElementById("evt-date").value,
-          time: document.getElementById("evt-time").value,
-          location: document.getElementById("evt-location").value,
-          description: document.getElementById("evt-desc").value,
-        },
-        "evt-id",
-        this,
-      );
-    });
-  }
-
-  const nwsForm = document.getElementById("form-news");
-  if (nwsForm) {
-    nwsForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "newsEvents.newsArticles",
-        {
-          title: document.getElementById("nws-title").value,
-          date: document.getElementById("nws-date").value,
-          category: document.getElementById("nws-cat").value,
-          summary: document.getElementById("nws-summary").value,
-        },
-        "nws-id",
-        this,
-      );
-    });
-  }
-
-  const galForm = document.getElementById("form-gallery");
-  if (galForm) {
-    galForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      saveItem(
-        "newsEvents.gallery",
-        {
-          title: document.getElementById("gal-title").value,
-          category: document.getElementById("gal-cat").value,
-          image: document.getElementById("gal-image").value,
-        },
-        "gal-id",
-        this,
-      );
-    });
-  }
 }
 
 // ==========================================
 // 6. RENDER ADMIN LISTS & PRE-FILL FIELDS
 // ==========================================
-function renderAdminLists() {
-  const data = getSiteData();
+async function renderAdminLists() {
+  const data = await getSiteData();
 
   const createList = (items, targetPath, titleKey, containerId) => {
     const container = document.getElementById(containerId);
@@ -606,7 +416,6 @@ function renderAdminLists() {
     "list-gallery",
   );
 
-  // Pre-fill static fields
   if (data.newsEvents?.calendarTitle) {
     const calElem = document.getElementById("cal-heading");
     if (calElem) calElem.value = data.newsEvents.calendarTitle;
@@ -617,22 +426,10 @@ function renderAdminLists() {
     if (hTitle) hTitle.value = data.homepage.hero.title || "";
     if (hSub) hSub.value = data.homepage.hero.subtitle || "";
   }
-  if (data.homepage?.welcomeSection) {
-    const wHead = document.getElementById("wel-head");
-    const wBody = document.getElementById("wel-body");
-    if (wHead) wHead.value = data.homepage.welcomeSection.heading || "";
-    if (wBody) wBody.value = data.homepage.welcomeSection.body || "";
-  }
-  if (data.admission?.formNotice) {
-    const nTitle = document.getElementById("ntc-title");
-    const nNote = document.getElementById("ntc-note");
-    if (nTitle) nTitle.value = data.admission.formNotice.title || "";
-    if (nNote) nNote.value = data.admission.formNotice.note || "";
-  }
 }
 
-function triggerEdit(targetPath, id) {
-  editItem(targetPath, id, (item) => {
+async function triggerEdit(targetPath, id) {
+  await editItem(targetPath, id, (item) => {
     if (targetPath === "homepage.educators") {
       document.getElementById("edu-id").value = item.id;
       document.getElementById("edu-name").value = item.name;
@@ -641,78 +438,6 @@ function triggerEdit(targetPath, id) {
       document.getElementById("edu-email").value = item.email || "";
       document.getElementById("edu-phone").value = item.phone || "";
       document.getElementById("edu-image").value = item.image;
-    } else if (targetPath === "homepage.testimonials") {
-      document.getElementById("tst-id").value = item.id;
-      document.getElementById("tst-author").value = item.author;
-      document.getElementById("tst-role").value = item.role;
-      document.getElementById("tst-text").value = item.text;
-    } else if (targetPath === "about.journey") {
-      document.getElementById("jny-id").value = item.id;
-      document.getElementById("jny-year").value = item.year;
-      document.getElementById("jny-title").value = item.title;
-      document.getElementById("jny-desc").value = item.description;
-    } else if (targetPath === "about.coreValues") {
-      document.getElementById("val-id").value = item.id;
-      document.getElementById("val-title").value = item.title;
-      document.getElementById("val-desc").value = item.description;
-    } else if (targetPath === "about.recognitions") {
-      document.getElementById("rec-id").value = item.id;
-      document.getElementById("rec-title").value = item.title;
-      document.getElementById("rec-body").value = item.body;
-      document.getElementById("rec-icon").value = item.icon || "";
-    } else if (targetPath === "about.leadership") {
-      document.getElementById("ldr-id").value = item.id;
-      document.getElementById("ldr-name").value = item.name;
-      document.getElementById("ldr-title").value = item.title;
-      document.getElementById("ldr-bio").value = item.bio;
-      document.getElementById("ldr-image").value = item.image;
-    } else if (targetPath === "about.facilities") {
-      document.getElementById("fac-id").value = item.id;
-      document.getElementById("fac-name").value = item.name;
-      document.getElementById("fac-desc").value = item.description;
-      document.getElementById("fac-image").value = item.image;
-    } else if (targetPath === "admission.requirements") {
-      document.getElementById("req-id").value = item.id;
-      document.getElementById("req-cat").value = item.category;
-      document.getElementById("req-details").value = item.details;
-    } else if (targetPath === "admission.steps") {
-      document.getElementById("stp-id").value = item.id;
-      document.getElementById("stp-num").value = item.stepNumber;
-      document.getElementById("stp-title").value = item.title;
-      document.getElementById("stp-desc").value = item.description;
-    } else if (targetPath === "admission.availableClasses") {
-      document.getElementById("cls-id").value = item.id;
-      document.getElementById("cls-name").value = item.className;
-      document.getElementById("cls-age").value = item.ageGroup;
-      document.getElementById("cls-capacity").value = item.capacity;
-    } else if (targetPath === "admission.faqs") {
-      document.getElementById("faq-id").value = item.id;
-      document.getElementById("faq-q").value = item.question;
-      document.getElementById("faq-a").value = item.answer;
-    } else if (targetPath === "digitalAssets.innovations") {
-      document.getElementById("ino-id").value = item.id;
-      document.getElementById("ino-title").value = item.title;
-      document.getElementById("ino-cat").value = item.category;
-      document.getElementById("ino-desc").value = item.description;
-      document.getElementById("ino-image").value = item.image;
-    } else if (targetPath === "newsEvents.upcomingEvents") {
-      document.getElementById("evt-id").value = item.id;
-      document.getElementById("evt-title").value = item.title;
-      document.getElementById("evt-date").value = item.date;
-      document.getElementById("evt-time").value = item.time;
-      document.getElementById("evt-location").value = item.location;
-      document.getElementById("evt-desc").value = item.description;
-    } else if (targetPath === "newsEvents.newsArticles") {
-      document.getElementById("nws-id").value = item.id;
-      document.getElementById("nws-title").value = item.title;
-      document.getElementById("nws-date").value = item.date;
-      document.getElementById("nws-cat").value = item.category;
-      document.getElementById("nws-summary").value = item.summary;
-    } else if (targetPath === "newsEvents.gallery") {
-      document.getElementById("gal-id").value = item.id;
-      document.getElementById("gal-title").value = item.title;
-      document.getElementById("gal-cat").value = item.category;
-      document.getElementById("gal-image").value = item.image;
     }
   });
 }
